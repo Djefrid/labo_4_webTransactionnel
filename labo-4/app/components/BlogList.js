@@ -2,8 +2,9 @@
 
 import { useState,useEffect } from "react";
 import BlogCard from './BlogCard';
+import { initPubIndexedDB, getAllPublications ,initCommentIndexedDB} from "../indexedDB";
 
-function BlogList() {
+export default function BlogList() {
 
     const [publications, setPublications] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -11,15 +12,28 @@ function BlogList() {
 
     useEffect(() => {
         chargerPublicationsAvecPagination();
+        initPubIndexedDB();
+        initCommentIndexedDB();
     }, []);
 
     const chargerPublicationsAvecPagination = () => {
         fetch('http://localhost:3000/Publication')
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Erreur lors du chargement des publications");
+                }
+                return response.json();
+            })
             .then(data => {
                 setPublications(data);
             })
-            .catch(error => console.error("Erreur lors du chargement des publications:", error));
+            .catch(error => {
+                console.error("Erreur lors du chargement des publications:", error);
+                // En cas d'erreur, charger les publications depuis IndexedDB
+                getAllPublications().then(data => {
+                    setPublications(data);
+                });
+            });
     };
 
     const trimText = (text, maxLength) => {
@@ -110,4 +124,3 @@ function BlogList() {
     );
 }
 
-export default BlogList;

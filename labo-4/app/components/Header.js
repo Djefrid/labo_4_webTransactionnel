@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from 'next/navigation'; 
 
-function Header() {
+export default function Header() {
     const router = useRouter();
 
     return (
@@ -21,7 +21,7 @@ function Header() {
                             <button className="nav-link text-center" id="home" aria-current="page" onClick={() => router.push("/")}>Acceuil</button>
                         </li>
                         <li className="nav-item px-5"> 
-                            <button className="nav-link text-center" onClick={() => router.push("/addPublication")} >Ajout publication</button>
+                            <button className="nav-link text-center" onClick={() => router.push("/FormPublication")} >Ajout publication</button>
                         </li>
                         <li className="nav-item px-5"> 
                             <Link className="nav-link text-center" href="#" tabIndex="-1" aria-disabled="true">Autre</Link>
@@ -36,4 +36,4 @@ function Header() {
     );
 }
 
-export default Header;
+

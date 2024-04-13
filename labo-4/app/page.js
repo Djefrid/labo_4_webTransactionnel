@@ -1,10 +1,11 @@
 // page d'accueil
 "use client"
 
-import Header from "./reactCode/Header";
-import SubHeader from "./reactCode/SubHeader";
-import BlogList from "./reactCode/BlogList";
-import Footer from "./reactCode/Footer";
+import Header from "./components/Header";
+import SubHeader from "./components/SubHeader";
+import BlogList from "./components/BlogList";
+import Footer from "./components/Footer";
+
 
 export default function Home() {
   return (

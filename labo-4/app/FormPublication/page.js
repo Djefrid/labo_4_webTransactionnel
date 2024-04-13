@@ -1,7 +1,7 @@
 "use client";
-import Header from "../reactCode/Header";
-import Footer from "../reactCode/Footer";
-import AjoutPublication from "../reactCode/AjoutPublication";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import AjoutPublication from "../components/AjoutPublication";
 
 export default function home() {
     return (

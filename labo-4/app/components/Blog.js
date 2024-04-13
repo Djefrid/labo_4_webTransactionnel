@@ -1,10 +1,10 @@
-"use client";
+
 import Image from "next/image";
 import AddComment from "./AddComment";
 import BlogDetails from "./BlogDetails";
 import CommentList from "./CommentList";
 
-function Blog( {id}) {
+export default function Blog( {id}) {
     return (
         <div className="container-fluid">
             <BlogDetails id = {id} />
@@ -29,7 +29,7 @@ function Blog( {id}) {
     );
 }
 
-export default Blog;
+
 
 
 

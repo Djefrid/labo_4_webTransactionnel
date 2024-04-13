@@ -1,6 +1,7 @@
 import "./globals.css";
 import "./custom.css";
-import "./style.css";
+import './indexedDB.js';
+import "../styles.css";
 
 export const metadata = {
   title: "Page D'accueil",
@@ -10,7 +11,6 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      
       <body >
       {children}
       </body>

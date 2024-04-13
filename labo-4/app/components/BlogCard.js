@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-function BlogCard(props) {
+export default function BlogCard(props) {
     return (
         <div className="col-10 col-lg-3 bloc">
             <Link className="carteblog" href={`/blogDetails/${props.id}`}>
@@ -19,4 +19,4 @@ function BlogCard(props) {
     );
 }
 
-export default BlogCard;
+

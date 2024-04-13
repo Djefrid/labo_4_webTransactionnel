@@ -1,8 +1,9 @@
 "use client"
 import { useState,useEffect } from "react";
 import Comment from "./Comment";
+import { getCommentaireById } from "../indexedDB";
 
-function CommentList({id }) {
+export default function CommentList({id }) {
     const [commentaires, setCommentaires] = useState([]);
 
     const fetchComment = async () => {
@@ -16,7 +17,15 @@ function CommentList({id }) {
         .then(commentaires => {
             setCommentaires(commentaires);
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            console.log('Erreur lors du chargement des commentaires :', err) 
+            // Charger les commentaires depuis IndexedDB en cas d'erreur
+            getCommentaireById(id).then(data => {
+                setCommentaires(data);
+            });
+        }
+            
+        );
     }
 
     useEffect(() => {
@@ -38,37 +47,3 @@ function CommentList({id }) {
     );
 }
 
-export default CommentList; 
-
-
-/* export default async function CommentList({id }) {
-    const [commentaires, setCommentaires] = useState([]);
-
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    const res = await fetch(`http://localhost:3000/Commentaire?Publicationid=${id}`);
-
-    const text = await res.text();
-
-    if(!res.ok) {
-        throw new Error('Erreur lors du chargement des commentaires');
-    }
-
-    setCommentaires(await res.json());
-
-    useEffect(() => {
-        return () => {
-            setCommentaires([]);
-        };
-    }, [id]); 
-
-    
-
-    return (
-        <div id="commentaireAjouteAutomatiquement">
-            {commentaires.map(commentaire => (
-                <Comment key={commentaire.id} contenu={commentaire.Contenu} />
-            ))}
-        </div>
-    );
-} */

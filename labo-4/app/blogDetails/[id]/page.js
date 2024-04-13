@@ -1,14 +1,14 @@
 "use client";
 
-import Header from "../../reactCode/Header";
-import Footer from '../../reactCode/Footer';
-import Blog from '../../reactCode/Blog';
+import Header from "../../components/Header";
+import Footer from '../../components/Footer';
+import Blog from '../../components/Blog';
 
 
 export default function page({params}) {
     return (
        
-        <main>
+        <main className="body">
             <Header /> 
             <Blog id={params.id}/>
             

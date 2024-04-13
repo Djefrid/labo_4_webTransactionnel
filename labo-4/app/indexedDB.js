@@ -1,99 +1,179 @@
-var bd;
+'use client'
 
-var requete = indexedDB.open("Publication", 1);
+import { Publication, Commentaire } from '../db.json';
 
-requete.onupgradeneeded = function (event) {
-    var db = event.target.result;
+const DB_NAME = 'Blog_database';
+const DB_VERSION = 1;
+let db;
 
-    var options = {
-        keyPath: "id",
-        autoIncrement: true
-    };
+export const openDB = () => {
+    return new Promise((resolve, reject) => {
+        const request = window.indexedDB.open(DB_NAME, DB_VERSION);
 
-    var entrepot = db.createObjectStore("Publication", options);
+        request.onerror = () => {
+            reject('Erreur lors de l\'ouverture de la base de données');
+        };
 
-    entrepot.createIndex("id", "id", { unique: true });
-    entrepot.createIndex("Image", "Image", { unique: false });
-    entrepot.createIndex("Titre", "Titre", { unique: false });
-    entrepot.createIndex("Auteur", "Auteur", { unique: false });
-    entrepot.createIndex("DateP", "DateP", { unique: false });
-    entrepot.createIndex("Contenu", "Contenu", { unique: false });
+        request.onsuccess = () => {
+            db = request.result;
+            resolve('Base de données ouverte avec succès');
+        };
 
-    entrepot.transaction.oncomplete = function (event) {
-        var trans = db.transaction(["Publication"], "readwrite");
-        var store = trans.objectStore("Publication");
-        store.add({
-            Image: "images/paysage.jpg",
-            Titre: "Les merveilles de la nature",
-            Auteur: "John Doe",
-            DateP: "2024-02-05",
-            Contenu: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla nec efficitur nulla. Donec imperdiet fringilla nibh sit amet fringilla. Duis vitae est non lorem placerat commodo."
-        });
-    };
-}
+        request.onupgradeneeded = (event) => {
+            const db = event.target.result;
 
-requete.onerror = function (event) {
-    console.log("Une erreur s'est produite lors de l'ouverture de la base de données.");
-}
+            const publicationStore = db.createObjectStore('publication', { keyPath: 'id', autoIncrement: true });
+            publicationStore.createIndex('Titre', 'Titre', { unique: false });
+            publicationStore.createIndex('Auteur', 'Auteur', { unique: false });
+            publicationStore.createIndex('DateP', 'DateP', { unique: false });
+            publicationStore.createIndex('Contenu', 'Contenu', { unique: false });
+            publicationStore.createIndex('Image', 'Image', { unique: false });
 
-requete.onsuccess = function (event) {
-    bd = event.target.result;
-}
+            const commentaireStore = db.createObjectStore('commentaire', { keyPath: 'id', autoIncrement: true });
+            commentaireStore.createIndex('Publicationid', 'Publicationid', { unique: false });
+            commentaireStore.createIndex('DateC', 'DateC', { unique: false });
+            commentaireStore.createIndex('Contenu', 'Contenu', { unique: false });
+        };
 
-document.getElementById("envoyerPublication").addEventListener("click", function () {
-    var trans = bd.transaction(["Publication"], "readwrite");
-    var store = trans.objectStore("Publication");
-    store.add({
-        Image: document.getElementById("image").value,
-        Titre: document.getElementById("titre").value,
-        Auteur: document.getElementById("auteur").value,
-        DateP: new Date().toISOString().slice(0, 10),
-        Contenu: document.getElementById("contenu").value
+        
     });
-});
+};
 
+export const addPublicationIndexedDB = (publicationData) => {
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['publication'], 'readwrite');
+        const objectStore = transaction.objectStore('publication');
+        const request = objectStore.add(publicationData);
 
-var db2
+        request.onerror = () => {
+            reject('Erreur lors de l\'ajout de la publication');
+        };
 
-var requete2 = indexedDB.open("Commentaire", 1);
-
-requete2.onupgradeneeded = function (event) {
-    var db = event.target.result;
-    var options = {
-        keyPath: "id",
-        autoIncrement: true
-    };
-    var entrepot = db.createObjectStore("Commentaire", options);
-    entrepot.createIndex("id", "id", { unique: true });
-    entrepot.createIndex("Publicationid", "Publicationid", { unique: false });
-    entrepot.createIndex("DateC", "DateC", { unique: false });
-    entrepot.createIndex("Contenu", "Contenu", { unique: false });
-
-    entrepot.transaction.oncomplete = function (event) {
-        var trans = db.transaction(["Commentaire"], "readwrite");
-        var store = trans.objectStore("Commentaire");
-        store.add({
-            Publicationid: "1",
-            DateC: "2024-02-06",
-            Contenu: "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
-        });
-    };
-}
-
-requete2.onerror = function (event) {
-    console.log("Une erreur s'est produite lors de l'ouverture de la base de données.");
-}
-
-requete2.onsuccess = function (event) {
-    db2 = event.target.result;
-}
-
-document.getElementById("envoyerCommentaire").addEventListener("click", function () {
-    var trans = db2.transaction(["Commentaire"], "readwrite");
-    var store = trans.objectStore("Commentaire");
-    store.add({
-        Publicationid: document.getElementById("publication").value,
-        DateC: new Date().toISOString().slice(0, 10),
-        Contenu: document.getElementById("commentaire").value
+        request.onsuccess = () => {
+            resolve('Publication ajoutée avec succès');
+        };
     });
-});
+};
+
+export const getAllPublications = () => {
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['publication'], 'readonly');
+        const objectStore = transaction.objectStore('publication');
+        const request = objectStore.getAll();
+
+        request.onerror = () => {
+            reject('Erreur lors de la récupération des publication');
+        };
+
+        request.onsuccess = () => {
+            resolve(request.result);
+        };
+    });
+};
+
+export const getPublicationById = (id) => {
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['publication'], 'readonly');
+        const objectStore = transaction.objectStore('publication');
+        const request = objectStore.get(id);
+
+        request.onerror = () => {
+            reject('Erreur lors de la sélection des publications');
+        };
+
+        request.onsuccess = () => {
+            resolve(request.result);
+        };
+    });
+}
+
+export const initPubIndexedDB = () => {
+    openDB().then(async () => {
+        const publications = await getAllPublications();
+        const publicationJson = Publication;
+        if (publications.length === 0) {
+            for (const publicationData of Publication) 
+                await addPublicationIndexedDB(publicationData);
+            console.log('Données chargées avec succès dans l\'IndexedDB (Publication)');
+        } else {
+            console.log('Il existe déjà dans donnes dans l\'IndexedDB (Publication)');
+            // ajoute de toutes les dernieres publications de db.json dans l'IndexedDB
+            const lastPublicationCount = Math.min(publicationJson.length - publications.length, publicationJson.length);
+            const lastCommnent = publicationJson.slice(-lastPublicationCount);
+            for(const item of lastCommnent)
+                await addPublicationIndexedDB(item);
+        }
+    }).catch(error => {
+        console.error('Erreur lors de l\'initialisation de l\'IndexedDB (Publication) :', error);
+    });
+};
+
+export const addCommentaireIndexedDB = (commentaireData) => {
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['commentaire'], 'readwrite');
+        const objectStore = transaction.objectStore('commentaire');
+        const request = objectStore.add(commentaireData);
+
+        request.onerror = () => {
+            reject('Erreur lors de l\'ajout du commentaire');
+        };
+
+        request.onsuccess = () => {
+            resolve('Commentaire ajouté avec succès');
+        };
+    });
+};
+
+export const getAllCommentaires = () => {
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['commentaire'], 'readonly');
+        const objectStore = transaction.objectStore('commentaire');
+        const request = objectStore.getAll();
+
+        request.onerror = () => {
+            reject('Erreur lors de la récupération des commentaires');
+        };
+
+        request.onsuccess = () => {
+            resolve(request.result);
+        };
+    });
+};
+
+export const getCommentaireById = (Publicationid) => {
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['commentaire'], 'readonly');
+        const objectStore = transaction.objectStore('commentaire');
+        const index = objectStore.index('Publicationid');
+        const request = index.getAll(Publicationid);
+
+        request.onerror = () => {
+            reject('Erreur lors de la sélection des commentaires');
+        };
+
+        request.onsuccess = () => {
+            resolve(request.result);
+        };
+    });
+};
+
+export const initCommentIndexedDB = () => {
+    openDB().then(async () => {
+        const commentaires = await getAllCommentaires();
+        const CommentaireJson = Commentaire;
+        if (commentaires.length === 0) {
+            for (const commentaireData of Commentaire) 
+                await addCommentaireIndexedDB(commentaireData);
+            console.log('Données chargées avec succès dans l\'IndexedDB (Commentaires)');
+        } else {
+            console.log('Il existe déjà dans donnes dans l\'IndexedDB (Commentaires)');
+            // ajout de toutes les dernieres commentaires de db.json dans l'IndexedDB
+            const lastCommentCount = Math.min(CommentaireJson.length - commentaires.length, CommentaireJson.length);
+            const lastCommnent = CommentaireJson.slice(-lastCommentCount);
+            for(const item of lastCommnent)
+                await addCommentaireIndexedDB(item);
+        }
+    }).catch(error => {
+        console.error('Erreur lors de l\'initialisation de l\'IndexedDB (Commentaires) :', error);
+    });
+};
